@@ -1,0 +1,4 @@
+# ninja log v5
+0	13320	1747619198	/media/junz/4TB-1/liyangeng/papers/DropGaussian/submodules/simple-knn/build/temp.linux-x86_64-cpython-310/simple_knn.o	b3ebf0b9544d9717
+0	21885	1747619207	/media/junz/4TB-1/liyangeng/papers/DropGaussian/submodules/simple-knn/build/temp.linux-x86_64-cpython-310/ext.o	f091ee417f2e202c
+1	54788	1747619240	/media/junz/4TB-1/liyangeng/papers/DropGaussian/submodules/simple-knn/build/temp.linux-x86_64-cpython-310/spatial.o	b88f1fbd8a4569b1

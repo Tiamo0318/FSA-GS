@@ -1,0 +1,6 @@
+# ninja log v5
+1	4254	1747308579	/media/junz/4TB-1/liyangeng/papers/DropGaussian/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-310/cuda_rasterizer/forward.o	3a860bb582d187d9
+0	4430	1747308580	/media/junz/4TB-1/liyangeng/papers/DropGaussian/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-310/cuda_rasterizer/backward.o	1541f0d9752dbe58
+1	10327	1747308586	/media/junz/4TB-1/liyangeng/papers/DropGaussian/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-310/cuda_rasterizer/rasterizer_impl.o	eddaad58572aa9a1
+2	22944	1747308598	/media/junz/4TB-1/liyangeng/papers/DropGaussian/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-310/ext.o	de8796cc489186fd
+2	58045	1747308633	/media/junz/4TB-1/liyangeng/papers/DropGaussian/submodules/diff-gaussian-rasterization/build/temp.linux-x86_64-cpython-310/rasterize_points.o	ff9bce03152f17f0
