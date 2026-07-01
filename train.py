@@ -30,36 +30,7 @@ from torch import nn
 import copy
 import matplotlib.pyplot as plt
 import json
-try:
-    from torch.utils.tensorboard import SummaryWriter
-    TENSORBOARD_FOUND = True
-except ImportError:
-    TENSORBOARD_FOUND = False
 
-
-def get_current_psnr(rendered_image, gt_image):
-    """
-    计算渲染图像与真实图像之间的PSNR
-    """
-    # 确保图像在相同设备和数据类型
-    rendered_image = rendered_image.to(gt_image.device).to(gt_image.dtype)
-
-    # 确保图像值范围在[0, 1]
-    rendered_image = torch.clamp(rendered_image, 0, 1)
-    gt_image = torch.clamp(gt_image, 0, 1)
-
-    # 计算MSE
-    mse = torch.mean((rendered_image - gt_image) ** 2)
-
-    # 避免除零错误
-    if mse < 1e-10:
-        return float('inf')
-
-    # 计算PSNR
-    max_pixel = 1.0
-    psnr_value = 20 * torch.log10(max_pixel / torch.sqrt(mse))
-
-    return psnr_value.item()
 
 def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint, debug_from):
     first_iter = 0
@@ -79,27 +50,6 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
     test_imgs_dir = os.path.join(args.model_path, "test_imgs/")
     os.makedirs(test_imgs_dir, exist_ok = True)
-
-    # === 核心修改：从测试相机中选固定视角（而非训练相机）===
-    psnr_records = []  # 存储格式：[{iteration, split_count, gaussian_num, psnr}, ...]
-    split_count = 0  # 分裂操作计数器（仅统计有效分裂）
-    fixed_test_cam = None  # 固定测试视角的相机
-    fixed_test_gt = None  # 测试视角的真实图（GT）
-
-    # # 1. 获取测试相机集合（scene.getTestCameras() 返回测试视角列表）
-    # test_cameras = scene.getTestCameras()
-    # if test_cameras:
-    #     # 选第0个测试相机作为固定评估视角（可修改索引，如test_cameras[1]）
-    #     fixed_test_cam = test_cameras[0]
-    #     # 获取测试相机的真实图（GT），确保格式正确（根据你的Scene类实现调整）
-    #     # 若test_camera.original_image不存在，可能需要用dataset加载测试图，示例：
-    #     # fixed_test_gt = dataset.load_test_image(fixed_test_cam.image_path).cuda()
-    #     fixed_test_gt = fixed_test_cam.original_image.cuda()  # 假设测试相机有original_image属性
-    #     print(f"Using fixed test camera (index 0) for PSNR evaluation")
-    # else:
-    #     # 若没有测试相机，提示并跳过PSNR记录
-    #     print("Warning: No test cameras found! PSNR recording is skipped.")
-
 
     viewpoint_stack = None
     ema_loss_for_log = 0.0
@@ -187,38 +137,8 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 if iteration > opt.densify_from_iter and iteration % opt.densification_interval == 0:
                     size_threshold = None
 
-                    # # === 新增：记录分裂前的高斯数量（判断是否为有效分裂）===
-                    # gaussian_num_before = gaussians.get_xyz.shape[0]
-
-
                     gaussians.densify_and_prune(opt.densify_grad_threshold, 0.005, scene.cameras_extent, size_threshold,
                                                 iteration)
-
-                    # # === 新增：分裂后计算并记录PSNR ===
-                    # gaussian_num_after = gaussians.get_xyz.shape[0]
-                    # # === 关键：用测试视角渲染并计算PSNR ===
-                    # if gaussian_num_after > gaussian_num_before and fixed_test_cam is not None and fixed_test_gt is not None:
-                    #     split_count += 1
-                    #     # 用固定测试相机渲染（is_train=False，关闭训练时的随机扰动）
-                    #     render_test_pkg = render(
-                    #         fixed_test_cam,  # 测试相机（而非训练相机）
-                    #         gaussians,
-                    #         pipe,
-                    #         background,  # 固定背景（非随机）
-                    #         is_train=False,
-                    #         iteration=iteration
-                    #     )
-                    #     rendered_test_img = render_test_pkg["render"]
-                    #     # 计算测试视角的PSNR
-                    #     psnr = get_current_psnr(rendered_test_img, fixed_test_gt)
-                    #     # 记录数据（新增测试视角标记，可选）
-                    #     psnr_records.append({
-                    #         "iteration": iteration,
-                    #         "split_count": split_count,
-                    #         "gaussian_num": gaussian_num_after,
-                    #         "psnr": psnr,
-                    #         "view_type": "test"  # 标记是测试视角
-                    #     })
 
                 if iteration % opt.opacity_reset_interval == 0 or (
                         dataset.white_background and iteration == opt.densify_from_iter):
@@ -232,13 +152,6 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             if (iteration in checkpoint_iterations):
                 print("\n[ITER {}] Saving Checkpoint".format(iteration))
                 torch.save((gaussians.capture(), iteration), scene.model_path + "/chkpnt" + str(iteration) + ".pth")
-
-
-    # # === 新增：训练结束后保存PSNR记录 ===
-    # psnr_save_path = os.path.join(args.model_path, "psnr_split_records.json")
-    # with open(psnr_save_path, "w") as f:
-    #     json.dump(psnr_records, f, indent=2)
-    # print(f"\nPSNR records saved to: {psnr_save_path}")
 
 
 

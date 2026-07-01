@@ -193,5 +193,5 @@ def pipeline(scene, base_path, n_views):
 
 for scene in ['fern']:
 
-    pipeline(scene, base_path = '/media/junz/4TB-11/liyangeng/papers/DropGaussian/dataset/nerf_llff_data/', n_views = 3)  # please use absolute path!
+    pipeline(scene, base_path = '', n_views = 3)  # please use absolute path!
 

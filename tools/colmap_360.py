@@ -192,6 +192,6 @@ def pipeline(scene, base_path, n_views):
 
 
 for scene in ['stump']:
-    pipeline(scene, base_path = '/media/junz/4TB-11/liyangeng/papers/DropGaussian/dataset/mipnerf360/', n_views = 12)  # please use absolute path!
+    pipeline(scene, base_path = '', n_views = 12)  # please use absolute path!
 
 
